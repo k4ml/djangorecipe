@@ -164,12 +164,17 @@ class Recipe(object):
             if self.options.get(protocol, '').lower() == 'true':
                 project = self.options.get('projectegg',
                                            self.options['project'])
+                wsgiapp = self.options.get('wsgiapp', '')
+                if wsgiapp:
+                    entry_points = [(wsgiapp, wsgiapp, 'main')]
+                else:
+                    entry_points = [('%s.%s' % (self.options.get('control-script',
+                                                self.name),
+                                     protocol),
+                                    'djangorecipe.%s' % protocol, 'main')]
                 scripts.extend(
                     zc.buildout.easy_install.scripts(
-                        [('%s.%s' % (self.options.get('control-script',
-                                                      self.name),
-                                     protocol),
-                          'djangorecipe.%s' % protocol, 'main')],
+                        entry_points,
                         ws,
                         sys.executable,
                         self.options['bin-directory'],
